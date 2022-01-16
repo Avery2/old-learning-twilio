@@ -1,0 +1,86 @@
+# /usr/bin/env python
+# Download the twilio-python library from twilio.com/docs/libraries/python
+from flask import Flask, request
+from twilio.twiml.messaging_response import MessagingResponse
+from twilio import twiml
+ 
+app = Flask(__name__)
+ 
+username = 'error'
+step = 0
+waitTime = 20
+runTimeError = 'Error Message Red'
+ 
+@app.route("/sms", methods=['GET', 'POST'])
+def sms_ahoy_reply():
+ 
+    number = request.form['From']
+    message_body = request.form['Body']
+    global step, username, waitTime
+    resp = MessagingResponse()
+ 
+    if inUserData(number):
+        f = open("userData.txt", 'r')
+        fl = f.readlines()
+        for x in fl:
+            if (x[0:12]==number):
+                break
+        #Get user's variables
+        lf=13
+        rt=x.index(',',lf)
+        username=x[lf:rt]
+        lf=rt+1
+        rt=x.index(',',lf)
+        waitTime=x[lf:len(x)]
+        lf=rt+1
+ 
+        resp.message('Welcome back '+username+'!\nwaitTime: '+str(waitTime))
+        #print('RETURN USER')
+        #print('username: '+username)
+        #print('waitTime: '+str(waitTime))
+        return str(resp)
+   
+    if message_body.lower()=='wait time':
+        resp.message('Wait time: '+str(waitTime))
+        return str(resp) #system.out.printlln("Java rulez!)
+ 
+    if step==0:
+        print('Step0') #testing message
+        resp.message('Welcome to Huron\'s Hospital. What is your name?')
+        step+=1
+        return str(resp) #don't worry about it
+ 
+    if step==1:
+        print('Step1') #testing message
+        username = message_body
+        resp.message('Thank you for your confirmation ' + username  + '! Type \'next\' to get your appointment time.')
+        step+=1
+        return str(resp) #don't worry about it
+ 
+    if ((step==2)&(message_body.lower()=='next')):
+        print('Step2') #testing message
+ 
+        '''calculate waitTime here'''
+ 
+        resp.message('Your wait time is '+str(waitTime)+ 'min. Type \'wait time\' to get your updated wait time.')
+        step=0
+ 
+        #save data
+        f = open('userData.txt','a')
+        f.write('\n'+str(number)+','+str(username)+','+str(waitTime)+',')
+        return str(resp)
+ 
+    print("Error out of Step: "+str(step)) #error message
+    return str(resp)
+
+ 
+def inUserData(n):
+    f = open("userData.txt", 'r')
+    fl = f.readlines()
+    for x in fl:
+        if (x[0:12]==n):
+            return True
+    return False
+ 
+if __name__ == "__main__":
+    app.run(debug=True)

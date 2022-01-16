@@ -1,0 +1,8 @@
+# ignore files manually
+
+bin
+django
+include
+lib
+PyGUI-2.5.4
+.DS_Store

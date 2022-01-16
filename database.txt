@@ -1,0 +1,2 @@
+number,username,waitTime,placeInLine
++17344183290,Avery,AveCustomWaitTime,AveCustomPlaceInLine
